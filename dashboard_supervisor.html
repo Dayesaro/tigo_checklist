@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel del Supervisor — Tigo Empresas / Emtelco</title>
+  <link rel="stylesheet" href="dashboard_supervisor.css" />
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+</head>
+
+<body>
+  <header class="supervisor-header">
+    <img src="img/tigo_logo.png" alt="Logo Tigo" class="supervisor-logo" />
+    <h1>Panel del Supervisor — Tigo Empresas / Emtelco</h1>
+  </header>
+
+  <nav class="supervisor-menu">
+    <button onclick="mostrarModulo('reportes')">📊 Reportes técnicos</button>
+    <button onclick="mostrarModulo('checklist')">✅ Checklists</button>
+    <button onclick="mostrarModulo('rendimiento')">👨‍🔧 Rendimiento del personal</button>
+    <button onclick="mostrarModulo('usuarios')">👥 Usuarios</button>
+    <button class="volver" onclick="volverDashboard()">⬅️ Volver al panel técnico</button>
+  </nav>
+
+  <main id="contenidoSupervisor" class="supervisor-contenido">
+    <section class="bienvenida">
+      <h2>Bienvenido al módulo de supervisión</h2>
+      <p>Seleccione una de las opciones del menú superior para comenzar.</p>
+    </section>
+  </main>
+
+  <!-- MODAL DE NUEVO USUARIO -->
+  <div id="modalUsuario" class="modal" style="display:none;">
+    <div class="modal-content">
+      <h3>➕ Nuevo Usuario</h3>
+      <form id="formUsuario">
+        <input type="text" id="nombre" placeholder="Nombre completo" required />
+        <input type="email" id="correo" placeholder="Correo electrónico" required />
+        <select id="rol" required>
+          <option value="">Seleccione rol</option>
+          <option value="técnico">Técnico</option>
+          <option value="supervisor">Supervisor</option>
+          <option value="admin">Administrador</option>
+        </select>
+        <select id="estado" required>
+          <option value="">Seleccione estado</option>
+          <option value="activo">Activo</option>
+          <option value="inactivo">Inactivo</option>
+        </select>
+        <div class="botonera">
+          <button type="submit">💾 Guardar</button>
+          <button type="button" onclick="cerrarModal()">❌ Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="supervisor-footer">
+    <p>© 2025 Tigo Colombia — Plataforma de supervisión técnica</p>
+  </footer>
+
+  <script>
+    const contenido = document.getElementById("contenidoSupervisor");
+    const modal = document.getElementById("modalUsuario");
+    const form = document.getElementById("formUsuario");
+
+    // ============================
+    // MENÚ PRINCIPAL DE MÓDULOS
+    // ============================
+    async function mostrarModulo(modulo) {
+      switch (modulo) {
+        case "usuarios":
+          contenido.innerHTML = `
+            <div class="card">
+              <h3>👥 Gestión de Usuarios</h3>
+              <p>Administre las cuentas de los usuarios del sistema.</p>
+              <div class="botonera">
+                <button onclick="abrirModal()">➕ Nuevo Usuario</button>
+              </div>
+              <table class="tabla" id="tablaUsuarios">
+                <thead>
+                  <tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr>
+                </thead>
+                <tbody><tr><td colspan="5">Cargando datos...</td></tr></tbody>
+              </table>
+            </div>`;
+          await cargarUsuarios();
+          break;
+
+        case "reportes":
+          contenido.innerHTML = `
+            <div class="card"><h3>📊 Reportes Técnicos</h3>
+            <p>Próximamente conectado a la base de datos.</p></div>`;
+          break;
+
+        case "checklist":
+          contenido.innerHTML = `
+            <div class="card"><h3>✅ Checklists</h3>
+            <p>Próximamente conectado a la base de datos.</p></div>`;
+          break;
+
+        case "rendimiento":
+          contenido.innerHTML = `
+            <div class="card"><h3>👨‍🔧 Rendimiento del personal</h3>
+            <p>Próximamente conectado a la base de datos.</p></div>`;
+          break;
+      }
+    }
+
+    // ============================
+    // USUARIOS — CRUD SIMPLE
+    // ============================
+
+    async function cargarUsuarios() {
+      const tabla = document.getElementById("tablaUsuarios").querySelector("tbody");
+      const { data, error } = await supabase.from("usuarios").select("*").order("id", { ascending: false });
+      if (error) {
+        tabla.innerHTML = `<tr><td colspan="5">Error al cargar usuarios: ${error.message}</td></tr>`;
+        return;
+      }
+      if (!data || data.length === 0) {
+        tabla.innerHTML = `<tr><td colspan="5">No hay usuarios registrados.</td></tr>`;
+        return;
+      }
+      tabla.innerHTML = "";
+      data.forEach(u => {
+        tabla.innerHTML += `
+          <tr>
+            <td>${u.nombre}</td>
+            <td>${u.correo}</td>
+            <td>${u.rol}</td>
+            <td>${u.estado}</td>
+            <td>
+              <button onclick="editarUsuario(${u.id})">✏️</button>
+              <button onclick="eliminarUsuario(${u.id})">🗑️</button>
+            </td>
+          </tr>`;
+      });
+    }
+
+    function abrirModal() {
+      modal.style.display = "flex";
+    }
+
+    function cerrarModal() {
+      modal.style.display = "none";
+      form.reset();
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nombre = document.getElementById("nombre").value.trim();
+      const correo = document.getElementById("correo").value.trim();
+      const rol = document.getElementById("rol").value;
+      const estado = document.getElementById("estado").value;
+
+      const { data, error } = await supabase.from("usuarios").insert([
+        { nombre, correo, rol, estado }
+      ]);
+
+      if (error) {
+        alert("Error al guardar: " + error.message);
+      } else {
+        alert("✅ Usuario guardado correctamente");
+        cerrarModal();
+        cargarUsuarios();
+      }
+    });
+
+    async function eliminarUsuario(id) {
+      if (confirm("¿Seguro que deseas eliminar este usuario?")) {
+        const { error } = await supabase.from("usuarios").delete().eq("id", id);
+        if (error) alert("Error al eliminar: " + error.message);
+        else cargarUsuarios();
+      }
+    }
+
+    function volverDashboard() {
+      window.location.href = "dashboard.html";
+    }
+  </script>
+</body>
+</html>

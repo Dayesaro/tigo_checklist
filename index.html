@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Técnico | Tigo - Emtelco</title>
+  <link rel="stylesheet" href="login.css">
+  <script type="module" src="supabase.js"></script>
+</head>
+
+<body class="login-body">
+  <header class="login-header">
+    <img src="img/logo_tigo.png" alt="Logo TIGO" class="login-logo" />
+    <h1>Portal de instalación y verificación técnica</h1>
+    <h2>TIGO Empresas / Emtelco</h2>
+  </header>
+
+  <main class="login-container">
+    <div class="login-card">
+      <p class="login-text">Conectando hogares, conectando experiencias</p>
+
+      <form id="loginForm" class="login-form">
+        <label for="email">Correo corporativo</label>
+        <input type="email" id="email" name="email" placeholder="usuario@experiencia.emtelco.com.co" required />
+        <button type="submit" class="btn-primary">Ingresar</button>
+      </form>
+
+      <p id="loginMessage" class="login-message"></p>
+    </div>
+  </main>
+
+  <footer class="login-footer">
+    <p>© 2025 Tigo Colombia — Plataforma de gestión interna</p>
+  </footer>
+
+  <script type="module">
+    import { supabase } from './supabase.js';
+
+    const form = document.getElementById('loginForm');
+    const message = document.getElementById('loginMessage');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const domain = email.split('@')[1];
+
+      if (domain !== 'experiencia.emtelco.com.co') {
+        message.textContent = 'Solo se permite acceso con correo corporativo.';
+        message.style.color = 'yellow';
+        return;
+      }
+
+      // 🔍 Verificar si ya existe el usuario
+      const { data: usuarioExistente, error: err1 } = await supabase
+        .from('usuarios')
+        .select('*')
+        .eq('correo', email)
+        .maybeSingle();
+
+      if (err1) {
+        console.error(err1);
+        message.textContent = 'Error conectando a la base de datos.';
+        message.style.color = 'red';
+        return;
+      }
+
+      if (!usuarioExistente) {
+        // 🆕 Crear nuevo usuario
+        const { error: err2 } = await supabase
+          .from('usuarios')
+          .insert([{ correo: email, rol: 'técnico' }]);
+        if (err2) {
+          console.error(err2);
+          message.textContent = 'No se pudo crear el usuario.';
+          message.style.color = 'red';
+          return;
+        }
+      }
+
+      // ✅ Guardar sesión local y redirigir
+      localStorage.setItem('usuarioActivo', email);
+      window.location.href = 'dashboard.html';
+    });
+  </script>
+</body>
+</html>

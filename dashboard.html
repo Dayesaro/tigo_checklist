@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel Técnico — Tigo / Emtelco</title>
+  <link rel="stylesheet" href="dashboard.css" />
+
+  <style>
+    .submenu, .submenu-instalacion, .submenu-reparaciones {
+      display: none;
+      margin-top: 10px;
+      animation: fadeIn 0.3s;
+    }
+
+    .submenu button, .submenu-instalacion button, .submenu-reparaciones button {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 8px 14px;
+      margin: 4px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .submenu button:hover, .submenu-instalacion button:hover, .submenu-reparaciones button:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .pasos-container {
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 10px;
+      padding: 25px;
+      margin-top: 15px;
+      max-width: 680px;
+      text-align: left;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    label { display: block; margin-top: 10px; font-weight: 500; color: #fff; }
+
+    input[type="text"], textarea {
+      width: 100%; padding: 10px; border-radius: 6px; border: none; margin-top: 6px;
+    }
+
+    input[type="file"] { margin-top: 8px; color: #fff; }
+
+    .preview {
+      margin-top: 10px; max-width: 150px; border-radius: 8px; display: none;
+    }
+
+    .botonera {
+      margin-top: 20px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    }
+
+    .botonera button {
+      flex: 1; min-width: 120px; background: #0078d7; border: none; color: white;
+      padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: 0.3s;
+    }
+
+    .botonera button:hover { background: #005fa3; }
+    .cancelar { background: #d9534f !important; }
+    .cancelar:hover { background: #b52b27 !important; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    main > *:empty { display: none; }
+  </style>
+</head>
+
+<body>
+  <header class="dashboard-header">
+    <img src="img/logo_tigo.png" alt="Logo Tigo" class="dashboard-logo" />
+    <h1>Portal Técnico — Tigo Empresas / Emtelco</h1>
+  </header>
+
+  <nav class="menu-bar">
+    <button id="btnSupervisor" class="btn-nav">⚙️ Supervisor</button>
+    <button id="btnInstalaciones" class="btn-primary">🔧 Instalaciones</button>
+    <button id="btnReparaciones" class="btn-nav">🧰 Reparaciones</button>
+    <button id="btnCerrarSesion" class="btn-secondary">🚪 Cerrar Sesión</button>
+  </nav>
+
+  <main class="dashboard-container">
+    <section id="contenidoPrincipal" class="section-card">
+      <h2>Bienvenido al Panel Técnico</h2>
+      <p>Seleccione una opción del menú superior para comenzar.</p>
+    </section>
+
+    <!-- Submenús -->
+    <div id="submenuInstalaciones" class="submenu">
+      <button onclick="nuevaInstalacion()">➕ Nueva instalación</button>
+      <button onclick="verInstalaciones()">📋 Ver instalaciones activas</button>
+      <button onclick="verHistorial()">🕓 Historial de instalaciones</button>
+    </div>
+
+    <div id="submenuNuevaInstalacion" class="submenu-instalacion">
+      <button onclick="abrirModulo('fibra')">📡 Fibra Óptica (GPON)</button>
+      <button onclick="abrirModulo('hfc')">🔌 HFC</button>
+      <button class="cancelar" onclick="volverInstalaciones()">⬅️ Volver</button>
+    </div>
+
+    <div id="submenuReparaciones" class="submenu-reparaciones">
+      <button onclick="nuevaReparacion()">🧰 Nueva reparación</button>
+      <button onclick="verSeguimiento()">📊 Seguimiento de órdenes</button>
+      <button onclick="verHistorialReparaciones()">🕓 Historial de reparaciones</button>
+    </div>
+
+    <section id="contenidoDinamico" class="section-card"></section>
+  </main>
+
+  <footer class="dashboard-footer">
+    <p>© 2025 Tigo Colombia — Plataforma de gestión interna</p>
+  </footer>
+
+  <script src="supabase.js"></script>
+  <script>
+    const submenuInstalaciones = document.getElementById("submenuInstalaciones");
+    const submenuNuevaInstalacion = document.getElementById("submenuNuevaInstalacion");
+    const submenuReparaciones = document.getElementById("submenuReparaciones");
+    const contenido = document.getElementById("contenidoDinamico");
+
+    // SUPERVISOR
+    document.getElementById("btnSupervisor").onclick = () => {
+      window.location.href = "dashboard_supervisor.html";
+    };
+
+    // INSTALACIONES
+    document.getElementById("btnInstalaciones").onclick = () => {
+      submenuInstalaciones.style.display = "block";
+      submenuNuevaInstalacion.style.display = "none";
+      submenuReparaciones.style.display = "none";
+      contenido.innerHTML = "<h2>Gestión de Instalaciones</h2><p>Seleccione una opción.</p>";
+    };
+
+    window.nuevaInstalacion = () => {
+      submenuInstalaciones.style.display = "none";
+      submenuNuevaInstalacion.style.display = "block";
+      contenido.innerHTML = "<h3>Seleccione el tipo de instalación</h3><p>Elija Fibra Óptica (GPON) o HFC.</p>";
+    };
+
+    window.volverInstalaciones = () => {
+      submenuNuevaInstalacion.style.display = "none";
+      submenuInstalaciones.style.display = "block";
+      contenido.innerHTML = "<h2>Gestión de Instalaciones</h2><p>Seleccione una opción.</p>";
+    };
+
+    const pasosFibra = [
+      { desc: "Ingreso al sistema GPON / Oracle", img: "fibra_paso1_oracle.jpg" },
+      { desc: "Provisionamiento del equipo ONT / Modem", img: "fibra_paso2_modem.jpg" },
+      { desc: "Verificación de potencia óptica y pruebas de navegación", img: "fibra_paso3_pruebas.jpg" },
+      { desc: "Registro de cierre en el sistema y entrega al cliente", img: "fibra_paso4_cierre.jpg" }
+    ];
+
+    const pasosHfc = [
+      { desc: "Ingreso al sistema HFC / Club D", img: "hfc_paso1_clubd.jpg" },
+      { desc: "Validación de niveles de señal y configuración del decodificador", img: "hfc_paso2_config.jpg" },
+      { desc: "Pruebas de navegación y TV", img: "hfc_paso3_pruebas.jpg" },
+      { desc: "Cierre de orden y entrega del servicio", img: "hfc_paso4_cierre.jpg" }
+    ];
+
+    let tipoProceso = "", pasoActual = 0;
+
+    window.abrirModulo = (tipo) => {
+      tipoProceso = tipo;
+      pasoActual = 0;
+      mostrarPaso();
+    };
+
+    function mostrarPaso() {
+      const pasos = tipoProceso === "fibra" ? pasosFibra : pasosHfc;
+      const paso = pasos[pasoActual];
+
+      contenido.innerHTML = `
+        <div class="pasos-container">
+          <h3>${tipoProceso === "fibra" ? "Instalación GPON (Fibra Óptica)" : "Instalación HFC"}</h3>
+          <p><strong>Paso ${pasoActual + 1} de ${pasos.length}:</strong> ${paso.desc}</p>
+          <p><em>📸 Imagen sugerida:</em> ${paso.img}</p>
+
+          <label>Ruta de acceso al aplicativo:</label>
+          <input type="text" placeholder="https://herramienta.tigo.com/${tipoProceso}">
+
+          <label>Notas:</label>
+          <textarea rows="3" placeholder="Observaciones o comentarios..."></textarea>
+
+          <label>Imagen de evidencia:</label>
+          <input type="file" accept="image/*" onchange="mostrarPreview(event)">
+          <img id="previewImg" class="preview"/>
+
+          <div class="botonera">
+            <button onclick="anterior()">⬅️ Anterior</button>
+            <button onclick="siguiente()">➡️ Siguiente</button>
+            <button onclick="guardar()">💾 Guardar</button>
+            <button class="cancelar" onclick="cancelar()">❌ Cancelar</button>
+          </div>
+        </div>`;
+    }
+
+    window.mostrarPreview = (event) => {
+      const file = event.target.files[0];
+      const preview = document.getElementById("previewImg");
+      if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+      } else preview.style.display = "none";
+    };
+
+    window.anterior = () => {
+      if (pasoActual > 0) { pasoActual--; mostrarPaso(); }
+    };
+
+    window.siguiente = () => {
+      const pasos = tipoProceso === "fibra" ? pasosFibra : pasosHfc;
+      if (pasoActual < pasos.length - 1) { pasoActual++; mostrarPaso(); }
+    };
+
+    window.guardar = () => {
+      alert(`✅ Paso ${pasoActual + 1} guardado correctamente en la instalación ${tipoProceso.toUpperCase()}.`);
+    };
+
+    // REPARACIONES
+    document.getElementById("btnReparaciones").onclick = () => {
+      submenuInstalaciones.style.display = "none";
+      submenuNuevaInstalacion.style.display = "none";
+      submenuReparaciones.style.display = "block";
+      contenido.innerHTML = "<h2>Gestión de Reparaciones</h2><p>Seleccione una opción.</p>";
+    };
+
+    const pasosReparacion = [
+      { desc: "Diagnóstico del daño", img: "reparacion_paso1.jpg" },
+      { desc: "Intervención técnica", img: "reparacion_paso2.jpg" },
+      { desc: "Verificación del servicio", img: "reparacion_paso3.jpg" },
+      { desc: "Cierre y registro", img: "reparacion_paso4.jpg" }
+    ];
+
+    let pasoActualReparacion = 0;
+
+    window.nuevaReparacion = () => {
+      pasoActualReparacion = 0;
+      mostrarPasoReparacion();
+    };
+
+    function mostrarPasoReparacion() {
+      const paso = pasosReparacion[pasoActualReparacion];
+      contenido.innerHTML = `
+        <div class="pasos-container">
+          <h3>Nueva Reparación</h3>
+          <p><strong>Paso ${pasoActualReparacion + 1} de ${pasosReparacion.length}:</strong> ${paso.desc}</p>
+          <p><em>📸 Imagen sugerida:</em> ${paso.img}</p>
+
+          <label>Cliente:</label>
+          <input type="text" placeholder="Código del cliente">
+
+          <label>Descripción del daño:</label>
+          <textarea rows="3" placeholder="Detalles del daño reportado..."></textarea>
+
+          <label>Ruta del aplicativo:</label>
+          <input type="text" placeholder="https://app.tigo.com/reparacion">
+
+          <label>Notas adicionales:</label>
+          <textarea rows="3" placeholder="Observaciones..."></textarea>
+
+          <label>Imagen de evidencia:</label>
+          <input type="file" accept="image/*" onchange="mostrarPreview(event)">
+          <img id="previewImg" class="preview"/>
+
+          <div class="botonera">
+            <button onclick="anteriorReparacion()">⬅️ Anterior</button>
+            <button onclick="siguienteReparacion()">➡️ Siguiente</button>
+            <button onclick="guardarReparacion()">💾 Guardar</button>
+            <button class="cancelar" onclick="cancelar()">❌ Cancelar</button>
+          </div>
+        </div>`;
+    }
+
+    window.anteriorReparacion = () => {
+      if (pasoActualReparacion > 0) { pasoActualReparacion--; mostrarPasoReparacion(); }
+    };
+
+    window.siguienteReparacion = () => {
+      if (pasoActualReparacion < pasosReparacion.length - 1) { pasoActualReparacion++; mostrarPasoReparacion(); }
+    };
+
+    window.guardarReparacion = () => {
+      alert(`✅ Paso ${pasoActualReparacion + 1} guardado correctamente.`);
+    };
+
+    // GENERAL
+    document.getElementById("btnCerrarSesion").onclick = () => {
+      alert("Sesión finalizada correctamente.");
+      window.location.href = "index.html";
+    };
+
+    window.cancelar = () => {
+      submenuInstalaciones.style.display = "none";
+      submenuNuevaInstalacion.style.display = "none";
+      submenuReparaciones.style.display = "none";
+      contenido.innerHTML = "<h2>Panel principal</h2><p>Seleccione una opción del menú superior.</p>";
+    };
+  </script>
+</body>
+</html>

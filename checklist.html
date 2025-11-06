@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checklist Técnico | TIGO</title>
+  <link rel="stylesheet" href="login.css">
+</head>
+<body class="checklist-body">
+
+  <header class="header">
+    <img src="img/logo_tigo.png" alt="Logo TIGO" class="logo-header" />
+    <h1>Lista de Verificación Técnica</h1>
+    <p id="userEmailDisplay"></p>
+  </header>
+
+  <main class="checklist-container">
+    <section>
+      <h2>✅ Instalación GPON / FTTH</h2>
+      <ol>
+        <li>Verificar potencia óptica (-18 a -27 dBm).</li>
+        <textarea placeholder="Notas del técnico..."></textarea>
+
+        <li>Comprobar conectores SC/APC limpios.</li>
+        <textarea placeholder="Observaciones..."></textarea>
+
+        <li>Registrar serial ONU en CRM.</li>
+        <textarea placeholder="Notas adicionales..."></textarea>
+
+        <li>Confirmar conectividad WiFi 2.4 y 5 GHz.</li>
+        <textarea placeholder="Detalles de prueba..."></textarea>
+      </ol>
+    </section>
+
+    <div class="button-container">
+      <button id="saveChecklist" class="btn-primary">💾 Guardar</button>
+      <button id="logoutBtn" class="btn-secondary">🚪 Cerrar sesión</button>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>© 2025 TIGO | Emtelco Experiencia</p>
+  </footer>
+
+  <script type="module">
+    import { supabase } from './supabase.js';
+
+    const userEmail = localStorage.getItem('userEmail');
+    document.getElementById('userEmailDisplay').textContent = userEmail ? `Usuario: ${userEmail}` : '';
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('userEmail');
+      window.location.href = 'index.html';
+    });
+
+    document.getElementById('saveChecklist').addEventListener('click', async () => {
+      alert('✅ Checklist guardado correctamente (prueba visual).');
+      // Aquí luego guardaremos los datos en Supabase
+    });
+  </script>
+</body>
+</html>

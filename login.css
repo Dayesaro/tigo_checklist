@@ -1,0 +1,104 @@
+/* ===============================
+   🌐 LOGIN — TIGO EMPRESAS / EMTELCO
+================================= */
+/* 
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: white;
+  text-align: center;
+  background: linear-gradient(rgba(0, 43, 91, 0.88), rgba(0, 43, 91, 0.88)),
+    url('../img/bg_fibra.jpg') center/cover no-repeat fixed;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}*/
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: white;
+  text-align: center;
+  background: linear-gradient(
+      rgba(0, 43, 91, 0.88),
+      rgba(0, 43, 91, 0.88)
+    ),
+    url('img/bg_fibra.jpg') center/cover no-repeat fixed;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Cabecera */
+header {
+  margin-top: 40px;
+}
+
+header img {
+  width: 100px;
+  margin-bottom: 15px;
+}
+
+h1 {
+  font-size: 1.7rem;
+  margin-bottom: 5px;
+}
+
+h2 {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #c9d9ec;
+  margin-bottom: 30px;
+}
+
+/* Card central */
+.login-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 35px 40px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  width: 340px;
+  margin: 0 auto;
+}
+
+label {
+  display: block;
+  text-align: left;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 1rem;
+}
+
+button {
+  width: 100%;
+  background-color: #0078d7;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 0;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+button:hover {
+  background-color: #005fa3;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #d8e4f0;
+  margin-bottom: 15px;
+}
